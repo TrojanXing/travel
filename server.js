@@ -12,7 +12,7 @@ const GOOGLE_KEY = 'AIzaSyBN20SIlF5X2epJryqAvSNXBLpifLKu5fM';
 const GEO_CODE_API = 'https://maps.googleapis.com/maps/api/geocode/json?';
 
 const app = express();
-const port = 3000;
+const port = 8888;
 
 /**
  * Set up routes
@@ -36,7 +36,7 @@ app.post('/search', function(req, res, next) {
 	category = category === 'default'? '': "&type=" + category;
 	pageToken = pageToken? "&pagetoken=" + pageToken : '';
 
-	let geoPromise = start_here? start_loc: getGeoCode(start_loc);
+	let geoPromise = start_here? Promise.resolve(start_loc): getGeoCode(start_loc);
 
 	return geoPromise
 		.then(geocode => {
