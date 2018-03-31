@@ -1,0 +1,31 @@
+<div  class="container">
+
+  <div class="btn-group" role="group">
+    <button type="button" class="btn">Results</button>
+    <button type="button" class="btn">Favorites</button>
+  </div>
+
+    <table *ngIf="display_content" class="table table-hover">
+    <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Category</th>
+      <th scope="col">Name</th>
+      <th scope="col">Address</th>
+      <th scope="col">Favorite</th>
+      <th scope="col">Detaiols</th>
+    </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let place of display_content; let i = index">
+        <th scope="row">{{ i }}</th>
+        <td><img src="{{ place.icon }}" class="category_icon"></td>
+        <td>{{ place.name }}</td>
+        <td>{{ place.vicinity }}</td>
+        <td><i class="fal fa-star"></i></td>
+        <td><i class="fal fa-angle-right"></i></td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>

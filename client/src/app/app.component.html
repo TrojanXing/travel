@@ -1,3 +1,5 @@
 <!--The content below is only a placeholder and can be replaced.-->
-<app-search></app-search>
+<app-search (onResultObtained)="display_result($event)"></app-search>
+
+<app-table [display_content]="display_content"></app-table>
 

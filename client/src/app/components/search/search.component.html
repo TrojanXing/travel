@@ -1,46 +1,51 @@
-<div class="container">
-
-  <form>
-    <legend>Travel and Entertainment Search</legend>
-    <hr>
-    <div class="form-group">
-      <label for="keyword">Keyword</label>
-      <input class="form-control" type="text" id="keyword" required>
+<div class="container  col-lg-6 col-md-8 col-sm-10">
+<!--TODO: VALIDATE FORM REQUIRED-->
+  <!--TODO: autocomplete place-->
+  <form [formGroup]="form" (submit)="onSearchSubmit($event)" id="searchForm">
+    <legend style="text-align: center">Travel and Entertainment Search</legend>
+    <div class="form-group row">
+      <label for="keyword" class="col-md-4">Keyword</label>
+      <input class="form-control col-md-8" formControlName="keyword" type="text" id="keyword" required>
     </div>
-    <div class="form-group">
-      <label for="category">Category</label>
-      <select id="category" class="form-control">
-        <option value="default" selected="selected">default</option>
-        <option value="cafe">cafe</option>
-        <option value="bakery">bakery</option>
-        <option value="restaurant">restaurant</option>
-        <option value="beauty_salon">beauty salon</option>
-        <option value="casino">casino</option>
-        <option value="movie_theater">movie theater</option>
-        <option value="lodging">lodging</option>
-        <option value="airport">airport</option>
-        <option value="train_station">train station</option>
-        <option value="subway_station">subway station</option>
-        <option value="bus_station">bus station</option>
+    <div class="form-group row">
+      <!--TODO: add default value for option-->
+      <label for="category" class="col-md-4">Category</label>
+      <select id="category" class="form-control col-md-8 customer-select" formControlName="category" >
+        <option value="default" selected>Default</option>
+        <option *ngFor="let category of categories" [value]="category">
+          {{ capitalizeStr(category) }}
+        </option>
       </select>
     </div>
-    <div class="form-group">
-      <label for="distance">Distance(mile)</label>
-      <input class="form-control" type="text" id="distance" placeholder="10">
+    <div class="form-group row">
+      <label for="distance" class="col-md-4">Distance(mile)</label>
+      <input class="form-control col-md-8" formControlName="distance" type="text" id="distance" placeholder="10">
     </div>
-    <div class="form-group">
-      <label for="start_loc">from</label>
-      <input class="form-check-input" type="radio" name="start" value="here" checked><span>Here</span><br>
-      <input class="form-check-input" type="radio" name="start" value="input">
-      <input class="form-control" type="text" name="start_loc" placeholder="Enter a location" id="start_loc" class="usr_input" disabled>
-
+    <div class="form-group row">
+      <label class="col-form-label col-md-4">from</label>
+      <div class="col-md-8">
+        <div class="form-check">
+          <input class="form-check-input" (click)="onRadioChange(true)" id="radio1" name="start_radio" type="radio" value="here" checked>
+          <label class="form-check-label" for="radio1">Current location</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" (click)="onRadioChange(false)" id="radio2" name="start_radio" type="radio" value="input">
+          <label class="form-check-label" for="radio2">Other, please specify:</label>
+        </div>
+        <input class="form-control" formControlName="start_loc" type="text" placeholder="Enter a location" id="start_loc" disabled>
+      </div>
     </div>
-    <input type="hidden" name="geo_loc" id="geo_loc">
-    <div class="field" style="margin-top: 10px; margin-bottom: 20px; margin-left: 70px; clear: both">
-      <input type="submit" name="search" value="Search" id="search" disabled >
-      <input type="reset" name="reset" value="Clear">
+    <!--<input type="hidden" name="geo_loc" id="geo_loc">-->
+    <div>
+      <input class="btn btn-primary" type="submit" name="search" value="Search" id="search" [disabled]="!start_loc" >
+      <input class="btn btn-secondary-outline" type="reset" name="reset" value="Clear">
     </div>
   </form>
 
+  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBN20SIlF5X2epJryqAvSNXBLpifLKu5fM&libraries=places"></script>
+  <script>
+    let usr_input = document.getElementById('start_loc');
+    let autocomplete = new google.maps.places.Autocomplete(usr_input);
+  </script>
 </div>
 
