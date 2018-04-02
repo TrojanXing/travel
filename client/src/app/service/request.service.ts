@@ -16,6 +16,7 @@ export class RequestService {
     private http: HttpClient
   ) {}
 
+  // TODO: change post to get
   searchPlaces(form_data) {
     this.httpOption = new HttpHeaders({
       'Content-Type': 'application/json',
@@ -27,13 +28,22 @@ export class RequestService {
     this.httpOption = new HttpHeaders({
       'Content-Type': 'application/json',
     });
-    let url = this.NEARBY_API + 'pagetoken=' + pageToken + '&key=' + this.GOOGLE_KEY;
+    let url = this.server_url + '/page?pageToken=' + pageToken;
+    return this.http.get(url, this.httpOption);
+  }
+
+  getDetail(place_id) {
+    this.httpOption = new HttpHeaders({
+      'Content-Type': 'application/json',
+    });
+    let url = this.server_url + '/detail?id=' + place_id;
     return this.http.get(url, this.httpOption);
   }
 
   getClientLocation() {
     this.httpOption = new HttpHeaders({
       'Content-Type': 'application/json',
+      // 'Access-Control-Allow-Origin': '*'
     });
     return this.http.get(this.ip_api_url, this.httpOption);
   }

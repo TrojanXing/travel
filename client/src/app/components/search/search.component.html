@@ -1,28 +1,38 @@
-<div class="container  col-lg-6 col-md-8 col-sm-10">
+<div class="container  col-md-8 col-sm-12">
 <!--TODO: VALIDATE FORM REQUIRED-->
-  <!--TODO: autocomplete place-->
-  <form [formGroup]="form" (submit)="onSearchSubmit($event)" id="searchForm">
-    <legend style="text-align: center">Travel and Entertainment Search</legend>
+  <!--TODO: add error message when input is invalid-->
+  <form class="col-md-8 col-sm-12" [formGroup]="form" (submit)="onSearchSubmit($event)" id="searchForm">
+    <legend style="text-align: center"><b>Travel and Entertainment Search</b></legend>
     <div class="form-group row">
-      <label for="keyword" class="col-md-4">Keyword</label>
-      <input class="form-control col-md-8" formControlName="keyword" type="text" id="keyword" required>
+      <label for="keyword" class="col-md-4">Keyword<span style="color: red;">*</span></label>
+      <div class="col-md-8">
+        <input class="form-control" formControlName="keyword" type="text" id="keyword"
+               [ngClass]="{
+            'is-invalid': form.controls.keyword.errors && form.controls.keyword.dirty,
+            'is-valid': !form.controls.keyword.errors}">
+        <div class="error_msg" *ngIf="form.controls.keyword.errors && form.controls.keyword.dirty">Please enter a keyword.</div>
+      </div>
+
     </div>
     <div class="form-group row">
-      <!--TODO: add default value for option-->
       <label for="category" class="col-md-4">Category</label>
-      <select id="category" class="form-control col-md-8 customer-select" formControlName="category" >
-        <option value="default" selected>Default</option>
-        <option *ngFor="let category of categories" [value]="category">
-          {{ capitalizeStr(category) }}
-        </option>
-      </select>
+      <div class="col-md-8">
+        <select id="category" class="form-control customer-select col-md-8" formControlName="category" >
+          <option value="default" selected>Default</option>
+          <option *ngFor="let category of categories" [value]="category">
+            {{ capitalizeStr(category) }}
+          </option>
+        </select>
+      </div>
     </div>
     <div class="form-group row">
       <label for="distance" class="col-md-4">Distance(mile)</label>
-      <input class="form-control col-md-8" formControlName="distance" type="text" id="distance" placeholder="10">
+      <div class="col-md-8">
+        <input class="form-control col-md-8" formControlName="distance" type="text" id="distance" placeholder="10">
+      </div>
     </div>
     <div class="form-group row">
-      <label class="col-form-label col-md-4">from</label>
+      <label class="col-form-label col-md-4">From<span style="color: red;">*</span></label>
       <div class="col-md-8">
         <div class="form-check">
           <input class="form-check-input" (click)="onRadioChange(true)" id="radio1" name="start_radio" type="radio" value="here" checked>
@@ -32,20 +42,20 @@
           <input class="form-check-input" (click)="onRadioChange(false)" id="radio2" name="start_radio" type="radio" value="input">
           <label class="form-check-label" for="radio2">Other, please specify:</label>
         </div>
-        <input class="form-control" formControlName="start_loc" type="text" placeholder="Enter a location" id="start_loc" disabled>
+        <!--TODO: auto complete value not update-->
+        <input class="form-control" formControlName="start_loc" type="text" placeholder="Enter a location" id="start_loc" disabled
+               [ngClass]="{
+            'is-invalid': form.controls.start_loc.errors && form.controls.start_loc.dirty,
+            'is-valid': !form.controls.start_loc.errors && !start_here}">
+        <div class="error_msg" style="" *ngIf="form.controls.start_loc.errors && form.controls.start_loc.dirty">Please enter a location.</div>
       </div>
     </div>
-    <!--<input type="hidden" name="geo_loc" id="geo_loc">-->
     <div>
-      <input class="btn btn-primary" type="submit" name="search" value="Search" id="search" [disabled]="!start_loc" >
-      <input class="btn btn-secondary-outline" type="reset" name="reset" value="Clear">
+      <!--TODO: disable submit button when other is clicked-->
+      <button class="btn btn-primary mr-2" type="submit" name="search" id="search" [disabled]="!start_loc || !form.valid"><i class="fas fa-search"></i>Search</button>
+      <button class="btn btn-outline-secondary" type="reset" name="reset" value="Clear">Clear</button>
     </div>
   </form>
-
-  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBN20SIlF5X2epJryqAvSNXBLpifLKu5fM&libraries=places"></script>
-  <script>
-    let usr_input = document.getElementById('start_loc');
-    let autocomplete = new google.maps.places.Autocomplete(usr_input);
-  </script>
 </div>
+
 

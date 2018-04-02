@@ -1,5 +1,59 @@
 <!--The content below is only a placeholder and can be replaced.-->
-<app-search (onResultObtained)="display_result($event)"></app-search>
+<app-search (onFormSubmitted)="nearby_search($event)"></app-search>
 
-<app-table [display_content]="display_content"></app-table>
+<div class="container mt-4">
+
+  <ul class="nav nav-pills row justify-content-center">
+    <li class="nav-item"><a class="nav-link active" href="#results_table" data-toggle="tab">Result</a></li>
+    <li class="nav-item"><a class="nav-link" href="#favorites" data-toggle="tab">Favorite</a></li>
+  </ul>
+
+  <!--Prograss Bar-->
+  <div class="progress" style="margin-top: 40px" [hidden]="!searching">
+    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width: 50%"></div>
+  </div>
+
+  <!--Table for search result and favorites-->
+  <div class="tab-content col-12" [@table_display_status]="table_display_status">
+    <div class="tab-pane fade show active col-12" id="results_table">
+      <app-table
+        [display_content]="display_content"
+        [favorites]="favoritePlaces"
+        [focused_place]="focusd_place"
+        [isResult]="true"
+        (onFavoriteChanged)="addOrRemoveFavorite($event)"
+        (onDetailRequired)="requestDetail($event)"></app-table>
+
+      <!--Pagination button-->
+      <div class="row justify-content-center" role="group" style="margin-left: auto; margin-right: auto;">
+        <button type="button" class="btn btn-outline-secondary" (click)="getPrevious()" [hidden]="currentPage == 0">Previous</button>
+        <button type="button" class="btn btn-outline-secondary" (click)="getNextPage()" [hidden]="!hasNext">Next</button>
+      </div>
+
+    </div>
+    <div class="tab-pane fade col-12" id="favorites">
+      <app-table
+        [display_content]="favoritePlaces"
+        [isResult]="false"
+        [focused_place]="focusd_place"
+        (onFavoriteChanged)="addOrRemoveFavorite($event)"
+        (onDetailRequired)="requestDetail($event)"></app-table>
+    </div>
+  </div>
+
+  <!--Detail-->
+  <div class="container" [@detail_display_status]="detail_display_status">
+    <app-detail
+      [place]="focusd_place"
+      [detail]="detail"
+      [display_status]="detail_display_status"
+      (onDetailHidden)="showTable()"
+      (onDetailObtained)="obtainDetail($event)"
+    ></app-detail>
+  </div>
+
+
+</div>
+
+
 

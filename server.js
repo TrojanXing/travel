@@ -41,6 +41,7 @@ app.post('/search', function(req, res, next) {
 	return geoPromise
 		.then(geocode => {
 			let url = MAP_API + "location=" + geocode + "&radius=" + distance + "&keyword=" + keyword + category + pageToken + "&key=" + GOOGLE_KEY
+			console.log(geocode);
 			console.log(url);
       let option = {
         url: url,
@@ -51,19 +52,47 @@ app.post('/search', function(req, res, next) {
       };
 			return request(option);
 		}).then(search_result => {
-			if(search_result.status === 'OK') {
 				console.log('Geo search result');
         res.status(200).send(search_result);
-
-			} else {
-				res.status(400).send(search_result);
-			}
-			return null;
+        return null;
 		}).catch(err => {
 			console.log(err);
 		});
-})
+});
 
+app.get('/page', function(req, res, next) {
+	let pageToken = req.query.pageToken;
+	let url = MAP_API + 'pagetoken=' + pageToken + '&key=' + GOOGLE_KEY;
+	console.log(url);
+  let option = {
+    url: url,
+    headers: {
+      'User-Agent': 'Request-Promise'
+    },
+    json: true
+  };
+  return request(option)
+		.then(data => {
+			res.status(200).send(data);
+		});
+});
+
+/* get place detail */
+app.get('/detail', function(req, res, next) {
+	let place_id = req.query.id;
+	let url = DETAIL_API + "placeid=" + place_id + "&key=" + GOOGLE_KEY;
+	let option = {
+		url: url,
+    headers: {
+      'User-Agent': 'Request-Promise'
+    },
+    json: true
+	};
+	return request(option)
+		.then(data => {
+			res.status(200).send(data);
+		})
+});
 
 /**
  * Set up port

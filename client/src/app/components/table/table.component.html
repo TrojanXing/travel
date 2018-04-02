@@ -1,11 +1,15 @@
-<div  class="container">
 
-  <div class="btn-group" role="group">
-    <button type="button" class="btn">Results</button>
-    <button type="button" class="btn">Favorites</button>
-  </div>
+<div class="alert alert-warning mt-6" role="alert" *ngIf="!display_content" >
+  There is no records.
+</div>
 
-    <table *ngIf="display_content" class="table table-hover">
+<div *ngIf="display_content" class="container">
+
+  <button type="button" class="btn btn-outline-secondary float-right mt-2 mb-2" [disabled]="!focused_place"
+    (click)="requireDetail(null)"
+  >Details</button>
+
+  <table class="table table-hover" *ngIf="display_content.length !== 0">
     <thead>
     <tr>
       <th scope="col">#</th>
@@ -13,19 +17,29 @@
       <th scope="col">Name</th>
       <th scope="col">Address</th>
       <th scope="col">Favorite</th>
-      <th scope="col">Detaiols</th>
+      <th scope="col">Details</th>
     </tr>
     </thead>
+    <!--TODO: parameter pass to click event-->
     <tbody>
-      <tr *ngFor="let place of display_content; let i = index">
-        <th scope="row">{{ i }}</th>
-        <td><img src="{{ place.icon }}" class="category_icon"></td>
+      <tr *ngFor="let place of display_content; let i = index"
+          [ngClass]="{'table-warning': checkIfFocused(place)}">
+        <th scope="row">{{ i+1 }}</th>
+        <td><img class="category_icon" src="{{ place.icon }}" class="category_icon"></td>
         <td>{{ place.name }}</td>
         <td>{{ place.vicinity }}</td>
-        <td><i class="fal fa-star"></i></td>
-        <td><i class="fal fa-angle-right"></i></td>
+        <td><div class="icon_btn">
+          <i *ngIf="!isResult" (click)="addOrRemoveFavorite(place)" class="fas fa-trash-alt"></i>
+          <i *ngIf="isResult && !checkIfInFavorite(place)" class="far fa-star" (click)="addOrRemoveFavorite(place)"></i>
+          <i *ngIf="isResult && checkIfInFavorite(place)" class="fas fa-star" style="color: gold" (click)="addOrRemoveFavorite(place)"></i>
+        </div></td>
+        <td><div class="icon_btn"><i class="fas fa-angle-right" (click)="requireDetail(place)"></i></div></td>
       </tr>
     </tbody>
   </table>
 
 </div>
+
+
+
+

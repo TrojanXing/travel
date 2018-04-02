@@ -1,0 +1,128 @@
+<div class="container">
+
+  <div class="h3 text-center">{{ detail?.name }}</div>
+
+  <div class="title_container">
+    <button class="btn btn-outline-secondary" (click)="hideDetail()">List</button>
+    <button class="float-right"> Twitter Button</button>
+    <button class="btn btn-outline-secondary float-right"><i class="far fa-star"></i></button>
+
+  </div>
+
+  <ul class="nav nav-tabs float-right">
+    <li class="nav-item">
+      <a class="nav-link active" href="#info" data-toggle="tab">Info</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#photos" data-toggle="tab">Photos</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#map_container" data-toggle="tab">Map</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#reviews" data-toggle="tab">Reviews</a>
+    </li>
+  </ul>
+
+  <div class="tab-content mt-3">
+    <!--Info-->
+    <div class="tab-pane fade show active mt-3" id="info">
+      <table class="table table-striped">
+        <tbody>
+          <tr><th scope="row">Address</th><td>{{ (detail)?.formatted_address }}</td></tr>
+          <tr><th scope="row">Phone Number</th><td>{{ (detail)?.international_phone_number }}</td></tr>
+          <tr><th scope="row">Price Level</th><td>{{ calcPriceLevel((detail)?.price_level) }}</td></tr>
+          <tr><th scope="row">Rating</th><td>{{ (detail)?.price_level }}</td></tr>
+          <tr><th scope="row">Google Page</th><td><a href="{{ (detail)?.url }}">{{ (detail)?.url }}</a></td></tr>
+          <tr><th scope="row">Website</th><td><a href="{{ (detail)?.website }}">{{ (detail)?.website }}</a></td></tr>
+          <tr><th scope="row">Hours</th><td>{{ calcOpenHour((detail)?.open_hours) }}</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!--photo-->
+    <div class="tab-pane fade mt-3" id="photos">
+
+    </div>
+
+    <!--map-container-->
+    <div class="tab-pane fade mt-3" id="map_container">
+      <form class="row" [formGroup]="form" (submit)="calcRoute($event)">
+        <div class="form-group col-md-3">
+          <label for="start_loc_route">From</label>
+          <input class="form-control" formControlName="start_loc_route" type="text" id="start_loc_route">
+        </div>
+
+        <div class="form-group col-md-3">
+          <label for="end_route">To</label>
+          <input class="form-control" formControlName="end_route" type="text" id="end_route" disabled value="{{ detail?.formatted_address }}">
+        </div>
+
+        <div class="form-group col-md-3">
+          <label for="travel_mode">Travel Mode</label>
+          <select id="travel_mode" class="form-control customer-select" formControlName="travel_mode" >
+            <option *ngFor="let mode of travel_modes" [value]="mode">
+              {{ capitalize(mode) }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group col-md-3">
+          <br>
+          <button class="btn btn-primary" type="submit" name="search" id="search" >Get Direction</button>
+        </div>
+
+      </form>
+      <div id="map" style="height: 400px;"></div>
+
+      <!--show detail routes-->
+      <div id="detail_routes"></div>
+    </div>
+
+    <!--reviews-->
+    <div class="tab-pane fade mt-3" id="reviews">
+      <div class="dropdown">
+        <!--TODO: change drop down text-->
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Reviews
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <a class="dropdown-item" href="#">Google Review</a>
+          <a class="dropdown-item" href="#">Yelp Review</a>
+        </div>
+      </div>
+      <div class="dropdown">
+        <!--TODO: change drop down text-->
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Order
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <a class="dropdown-item" href="#">Default	Order</a>
+          <a class="dropdown-item" href="#">Highest Rating</a>
+          <a class="dropdown-item" href="#">Lowest	Rating</a>
+          <a class="dropdown-item" href="#">Most Recent</a>
+          <a class="dropdown-item" href="#">Least	Recent</a>
+        </div>
+      </div>
+
+      <div class="container">
+        <!--TODO: change reviews style-->
+        <div class="card" *ngFor="let review of reviews">
+          <div class="card-body row">
+            <div class="col-md-4">
+              <img src="{{review['profile_photo_url']}}">
+            </div>
+            <div class="col-md-8">
+              <div>{{ review['author_name']}}</div>
+              <div><span>{{ review['rating'] }}</span><span>{{ review['time'] }}</span> </div>
+              <div>{{ review['text'] }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div> <!-- Reviews -->
+  </div>
+
+</div>
+
