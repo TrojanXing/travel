@@ -41,8 +41,8 @@ app.post('/search', function(req, res, next) {
 	return geoPromise
 		.then(geocode => {
 			let url = MAP_API + "location=" + geocode + "&radius=" + distance + "&keyword=" + keyword + category + pageToken + "&key=" + GOOGLE_KEY
-			console.log(geocode);
-			console.log(url);
+			// console.log(geocode);
+			// console.log(url);
       let option = {
         url: url,
         headers: {
@@ -63,7 +63,7 @@ app.post('/search', function(req, res, next) {
 app.get('/page', function(req, res, next) {
 	let pageToken = req.query.pageToken;
 	let url = MAP_API + 'pagetoken=' + pageToken + '&key=' + GOOGLE_KEY;
-	console.log(url);
+	// console.log(url);
   let option = {
     url: url,
     headers: {

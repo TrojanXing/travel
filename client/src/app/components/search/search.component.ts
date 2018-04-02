@@ -17,7 +17,6 @@ export class SearchComponent implements OnInit {
   form;
   lat;
   lng;
-  zoom;
   start_loc;
   start_here = true;
   categories = ['accounting', 'airport', 'amusement_park', 'aquarium', 'art_gallery', 'atm', 'bakery', 'bank', 'bar', 'beauty_salon', 'bicycle_store', 'book_store', 'bowling_alley', 'bus_station', 'cafe', 'campground', 'car_dealer', 'car_rental', 'car_repair', 'car_wash', 'casino', 'cemetery', 'church', 'city_hall', 'clothing_store', 'convenience_store', 'courthouse', 'dentist', 'department_store', 'doctor', 'electrician', 'electronics_store', 'embassy', 'fire_station', 'florist', 'funeral_home', 'furniture_store', 'gas_station', 'gym', 'hair_care', 'hardware_store', 'hindu_temple', 'home_goods_store', 'hospital', 'insurance_agency', 'jewelry_store', 'laundry', 'lawyer', 'library', 'liquor_store', 'local_government_office', 'locksmith', 'lodging', 'meal_delivery', 'meal_takeaway', 'mosque', 'movie_rental', 'movie_theater', 'moving_company', 'museum', 'night_club', 'painter', 'park', 'parking', 'pet_store', 'pharmacy', 'physiotherapist', 'plumber', 'police', 'post_office', 'real_estate_agency', 'restaurant', 'roofing_contractor', 'rv_park', 'school', 'shoe_store', 'shopping_mall', 'spa', 'stadium', 'storage', 'store', 'subway_station', 'supermarket', 'synagogue', 'taxi_stand', 'train_station', 'transit_station', 'travel_agency', 'veterinary_care', 'zoo'];
@@ -88,10 +87,6 @@ export class SearchComponent implements OnInit {
     }
   }
 
-  completeInput(e) {
-    console.log(e.target.value);
-  }
-
   onSearchSubmit(e) {
     e.preventDefault();
     this.searching = true;
@@ -99,12 +94,10 @@ export class SearchComponent implements OnInit {
       keyword: this.form.get('keyword').value,
       distance: this.form.get('distance').value || 10,
       start_here: this.start_here,
-      start_loc: this.start_here? this.start_loc: this.form.get('start_loc').value + '',
+      start_loc: this.start_here? this.start_loc: this.elementRef.nativeElement.querySelector('#start_loc').value,
       category: this.form.get('category').value,
     };
-    console.log(search_form);
     this.onFormSubmitted.emit(search_form);
-
   }
 
   ngOnInit() {
@@ -113,8 +106,7 @@ export class SearchComponent implements OnInit {
       console.log("Get client location " + this.start_loc);
       this.lat = data['lat'];
       this.lng = data['lng'];
-      this.zoom = 4;
-
+      localStorage.setItem('client_loc', this.start_loc);
       //load Place Autocomplete
       let autocomplete = new google.maps.places.Autocomplete(this.elementRef.nativeElement.querySelector('#start_loc'), {
         types: ["address"]

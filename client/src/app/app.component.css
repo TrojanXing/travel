@@ -1,3 +1,11 @@
 .container {
   position: relative;
 }
+
+.alert {
+  margin-top: 80px;
+}
+
+.pagination_btn {
+  width: 100px;
+}

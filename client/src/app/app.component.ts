@@ -12,12 +12,12 @@ import {animate, state, style, transition, trigger} from "@angular/animations";
     trigger('detail_display_status', [
       state('show', style({
         position: 'absolute',
-        top: 100,
+        top: 40,
         left: 0,
       })),
       state('hide',   style({
         position: 'absolute',
-        top: 100,
+        top: 40,
         left: '-100%',
         display: 'none'
       })),
@@ -27,12 +27,12 @@ import {animate, state, style, transition, trigger} from "@angular/animations";
     trigger('table_display_status', [
       state('show', style({
         position: 'absolute',
-        top: 50,
+        top: 40,
         left: 0,
       })),
       state('hide',   style({
         position: 'absolute',
-        top: 50,
+        top: 40,
         left: '100%',
         display: 'none'
       })),
@@ -58,7 +58,6 @@ export class AppComponent implements OnInit {
   focusd_place;
   searching = false;
   hasNext: Boolean;
-  detail;
   detail_display_status = 'hide';
   table_display_status = 'hide';
 
@@ -73,13 +72,12 @@ export class AppComponent implements OnInit {
       this.display_content = data['results'];
       this.hasNext = !!data['next_page_token'];
       this.showTable();
+      console.log('nearby search success');
+      console.log(data);
     });
   }
 
-  //TODO: check if result is valid
   addOrRemoveFavorite(place) {
-    console.log(place);
-
     let favorites = JSON.parse(localStorage.getItem('favorite')) || { 'favorites': [] };
     //console.log(favorites);
     let ind = favorites['favorites'].findIndex(function (elem) {
@@ -99,10 +97,6 @@ export class AppComponent implements OnInit {
   requestDetail(place) {
     this.focusd_place = place? place: this.focusd_place;
     this.showDetail();
-  }
-
-  obtainDetail(event) {
-    this.detail = event;
   }
 
   showTable() {

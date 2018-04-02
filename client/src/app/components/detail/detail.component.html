@@ -1,28 +1,32 @@
 <div class="container">
 
-  <div class="h3 text-center">{{ detail?.name }}</div>
+  <div class="h3 text-center mt-4">{{ detail?.name }}</div>
 
   <div class="title_container">
     <button class="btn btn-outline-secondary" (click)="hideDetail()">List</button>
-    <button class="float-right"> Twitter Button</button>
-    <button class="btn btn-outline-secondary float-right"><i class="far fa-star"></i></button>
+    <img class="float-right" src="http://cs-server.usc.edu:45678/hw/hw8/images/Twitter.png" style="width: 40px; height: 40px;">
+    <button class="btn btn-outline-secondary float-right mr-2" style="width: 40px; height: 40px;" (click)="addOrRemoveFavorite()">
+      <i *ngIf="!checkIfInFavorite()" class="far fa-star"></i>
+      <i *ngIf="checkIfInFavorite()" class="fas fa-star" style="color: gold"></i>
+    </button>
 
   </div>
-
-  <ul class="nav nav-tabs float-right">
-    <li class="nav-item">
-      <a class="nav-link active" href="#info" data-toggle="tab">Info</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="#photos" data-toggle="tab">Photos</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="#map_container" data-toggle="tab">Map</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="#reviews" data-toggle="tab">Reviews</a>
-    </li>
-  </ul>
+  <div class="tab_container mt-4">
+    <ul class="nav nav-tabs row justify-content-end">
+      <li class="nav-item">
+        <a class="nav-link active" href="#info" data-toggle="tab">Info</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#photos" data-toggle="tab">Photos</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#map_container" data-toggle="tab">Map</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#reviews" data-toggle="tab">Reviews</a>
+      </li>
+    </ul>
+  </div>
 
   <div class="tab-content mt-3">
     <!--Info-->
@@ -32,33 +36,44 @@
           <tr><th scope="row">Address</th><td>{{ (detail)?.formatted_address }}</td></tr>
           <tr><th scope="row">Phone Number</th><td>{{ (detail)?.international_phone_number }}</td></tr>
           <tr><th scope="row">Price Level</th><td>{{ calcPriceLevel((detail)?.price_level) }}</td></tr>
-          <tr><th scope="row">Rating</th><td>{{ (detail)?.price_level }}</td></tr>
-          <tr><th scope="row">Google Page</th><td><a href="{{ (detail)?.url }}">{{ (detail)?.url }}</a></td></tr>
-          <tr><th scope="row">Website</th><td><a href="{{ (detail)?.website }}">{{ (detail)?.website }}</a></td></tr>
-          <tr><th scope="row">Hours</th><td>{{ calcOpenHour((detail)?.open_hours) }}</td></tr>
+          <tr><th scope="row">Rating</th><td><i *ngFor="let n of createArr((detail)?.price_level)" class="fas fa-star" style="color: gold"></i></td></tr>
+          <tr><th scope="row">Google Page</th><td><a href="{{ (detail)?.url }}" target="_blank">{{ (detail)?.url }}</a></td></tr>
+          <tr><th scope="row">Website</th><td><a href="{{ (detail)?.website }}" target="_blank">{{ (detail)?.website }}</a></td></tr>
+          <tr><th scope="row">Hours</th><td>{{ checkOpenStatus(detail?.opening_hours) }}
+            <button type="button" class="btn btn-link" data-toggle="modal" data-target="#open_hour"
+                    *ngIf="opening_hours && opening_hours.length > 0">
+              Open Hour
+            </button>
+          </td></tr>
         </tbody>
       </table>
     </div>
 
     <!--photo-->
-    <div class="tab-pane fade mt-3" id="photos">
-
+    <div class="tab-pane fade mt-3 row" id="photos">
+      <div class="container-fluid row">
+        <div *ngFor="let col of photo_col" class="col-md-3" style="padding: 0">
+          <div *ngFor="let photo of col" class="mt-2 mr-2">
+            <a href="{{ photo }}" target="_blank"><img src="{{photo}}" alt="" style="width: 100%"></a>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!--map-container-->
-    <div class="tab-pane fade mt-3" id="map_container">
+    <div class="tab-pane fade mt-3 container" id="map_container">
       <form class="row" [formGroup]="form" (submit)="calcRoute($event)">
-        <div class="form-group col-md-3">
+        <div class="form-group col-3">
           <label for="start_loc_route">From</label>
           <input class="form-control" formControlName="start_loc_route" type="text" id="start_loc_route">
         </div>
 
-        <div class="form-group col-md-3">
+        <div class="form-group col-3">
           <label for="end_route">To</label>
           <input class="form-control" formControlName="end_route" type="text" id="end_route" disabled value="{{ detail?.formatted_address }}">
         </div>
 
-        <div class="form-group col-md-3">
+        <div class="form-group col-3">
           <label for="travel_mode">Travel Mode</label>
           <select id="travel_mode" class="form-control customer-select" formControlName="travel_mode" >
             <option *ngFor="let mode of travel_modes" [value]="mode">
@@ -67,7 +82,7 @@
           </select>
         </div>
 
-        <div class="form-group col-md-3">
+        <div class="form-group col-3">
           <br>
           <button class="btn btn-primary" type="submit" name="search" id="search" >Get Direction</button>
         </div>
@@ -86,17 +101,15 @@
         <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Reviews
         </button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
           <a class="dropdown-item" href="#">Google Review</a>
           <a class="dropdown-item" href="#">Yelp Review</a>
         </div>
-      </div>
-      <div class="dropdown">
         <!--TODO: change drop down text-->
         <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Order
         </button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
           <a class="dropdown-item" href="#">Default	Order</a>
           <a class="dropdown-item" href="#">Highest Rating</a>
           <a class="dropdown-item" href="#">Lowest	Rating</a>
@@ -107,14 +120,14 @@
 
       <div class="container">
         <!--TODO: change reviews style-->
-        <div class="card" *ngFor="let review of reviews">
+        <div class="card mt-2" *ngFor="let review of reviews">
           <div class="card-body row">
-            <div class="col-md-4">
-              <img src="{{review['profile_photo_url']}}">
+            <div class="col-md-2">
+              <img src="{{review['profile_photo_url']}}" style="max-width: 50px;">
             </div>
-            <div class="col-md-8">
-              <div>{{ review['author_name']}}</div>
-              <div><span>{{ review['rating'] }}</span><span>{{ review['time'] }}</span> </div>
+            <div class="col-md-10">
+              <div><a href="#">{{ review['author_name']}}</a></div>
+              <div><span><i *ngFor="let n of createArr(review['rating'])" class="fas fa-star" style="color: gold"></i></span><span> {{ formatDate(review['time']) }}</span> </div>
               <div>{{ review['text'] }}</div>
             </div>
           </div>
@@ -124,5 +137,34 @@
     </div> <!-- Reviews -->
   </div>
 
+  <!-- Modal -->
+  <div class="modal fade" id="open_hour" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Open Hour</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <table class="table">
+            <tbody>
+            <tr *ngFor="let text of opening_hours['weekday_text']"
+                [ngClass]="{'font-weight-bold': checkWeekday(text)}">
+              <td>{{ text.split(":")[0] }}</td>
+              <td>{{ formatOpenTime(text) }}</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
+
 

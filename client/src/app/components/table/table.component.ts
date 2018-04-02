@@ -19,7 +19,7 @@ export class TableComponent implements OnChanges {
   constructor() { }
 
   ngOnChanges(changes: SimpleChanges) {
-    console.log(changes);
+    //console.log(changes);
     if(changes['display_content']) this.display_content = changes['display_content']['currentValue'];
     if(changes['favorites']) this.favorites = changes['favorites']['currentValue'];
     if(changes['focused_place']) this.focused_place = changes['focused_place']['currentValue'];
@@ -39,7 +39,7 @@ export class TableComponent implements OnChanges {
   }
 
   addOrRemoveFavorite(place) {
-    console.log(place);
+    // console.log(place);
     this.onFavoriteChanged.emit(place);
   }
 

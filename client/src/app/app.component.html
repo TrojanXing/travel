@@ -1,7 +1,6 @@
-<!--The content below is only a placeholder and can be replaced.-->
 <app-search (onFormSubmitted)="nearby_search($event)"></app-search>
 
-<div class="container mt-4">
+<div class="container col-md-10 col-sm-12 mt-4">
 
   <ul class="nav nav-pills row justify-content-center">
     <li class="nav-item"><a class="nav-link active" href="#results_table" data-toggle="tab">Result</a></li>
@@ -26,8 +25,8 @@
 
       <!--Pagination button-->
       <div class="row justify-content-center" role="group" style="margin-left: auto; margin-right: auto;">
-        <button type="button" class="btn btn-outline-secondary" (click)="getPrevious()" [hidden]="currentPage == 0">Previous</button>
-        <button type="button" class="btn btn-outline-secondary" (click)="getNextPage()" [hidden]="!hasNext">Next</button>
+        <button type="button" class="btn btn-outline-secondary mr-2 pagination_btn" (click)="getPrevious()" [hidden]="currentPage == 0">Previous</button>
+        <button type="button" class="btn btn-outline-secondary pagination_btn" (click)="getNextPage()" [hidden]="!hasNext">Next</button>
       </div>
 
     </div>
@@ -45,10 +44,10 @@
   <div class="container" [@detail_display_status]="detail_display_status">
     <app-detail
       [place]="focusd_place"
-      [detail]="detail"
       [display_status]="detail_display_status"
+      [favorites]="favoritePlaces"
       (onDetailHidden)="showTable()"
-      (onDetailObtained)="obtainDetail($event)"
+      (onFavoriteChanged)="addOrRemoveFavorite($event)"
     ></app-detail>
   </div>
 

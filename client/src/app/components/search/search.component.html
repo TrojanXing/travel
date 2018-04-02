@@ -1,6 +1,5 @@
 <div class="container  col-md-8 col-sm-12">
 <!--TODO: VALIDATE FORM REQUIRED-->
-  <!--TODO: add error message when input is invalid-->
   <form class="col-md-8 col-sm-12" [formGroup]="form" (submit)="onSearchSubmit($event)" id="searchForm">
     <legend style="text-align: center"><b>Travel and Entertainment Search</b></legend>
     <div class="form-group row">
@@ -51,7 +50,6 @@
       </div>
     </div>
     <div>
-      <!--TODO: disable submit button when other is clicked-->
       <button class="btn btn-primary mr-2" type="submit" name="search" id="search" [disabled]="!start_loc || !form.valid"><i class="fas fa-search"></i>Search</button>
       <button class="btn btn-outline-secondary" type="reset" name="reset" value="Clear">Clear</button>
     </div>
