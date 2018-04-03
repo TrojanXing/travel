@@ -15,20 +15,27 @@ export class DetailComponent implements OnInit, OnChanges {
   @Input() place: Object;
   @Input() display_status = 'hide';
   @Input() favorites;
+  @Input() detail;
 
   @Output() onDetailHidden: EventEmitter<Object> =  new EventEmitter<Object>();
   @Output() onFavoriteChanged: EventEmitter<Object> = new EventEmitter<Object>();
+  @Output() onDetailObrained: EventEmitter<Object> = new EventEmitter<Object>();
 
   public map;
+  public street_view;
   public map_service;
-  public detail;
   public marker;
+  public showMap = true;
 
   public form;
   public travel_modes = ['DRIVING', 'BICYCLING', 'TRANSIT', 'WALKING'];
   public directionsService;
   public directionsDisplay;
   public reviews;
+  public google_reviews;
+  public yelp_reviews;
+  public review_origin = 'Google Reviews';    //True for google, false for yelp
+  public order_method = 'Default Order';
   public photos;
   public photo_col = [[],[],[],[]];
   public utl_arr = [[1],[1,1],[1,1,1],[1,1,1,1],[1,1,1,1,1]];
@@ -74,7 +81,10 @@ export class DetailComponent implements OnInit, OnChanges {
         console.log('Something wrong, cannot get route')
       }
     });
+  }
 
+  toggleMapContent() {
+    this.showMap = !this.showMap;
   }
 
   /**
@@ -89,6 +99,19 @@ export class DetailComponent implements OnInit, OnChanges {
     return str;
   }
 
+
+  /**
+   * Review section
+   */
+  changeReviewOrigin(origin) {
+    if(origin) {
+      //Google reviews
+      this.reviews = this.google_reviews;
+    } else {
+
+    }
+
+  }
 
   /**
    * Utility
@@ -133,6 +156,14 @@ export class DetailComponent implements OnInit, OnChanges {
     }
   }
 
+  /**
+   * Tweet section
+   */
+  composeTweet() {
+    let text = `Check+out+${this.detail['name']}+located+at+${this.detail['formatted_address']}. Website: ${this.detail['website'] || this.detail['url']}&via=TravelAndEntertainmentSearch`;
+    window.open("https://twitter.com/intent/tweet?text=" + text,"Tweet", "height=400,width=800")
+  }
+
   createArr(n) {
     return this.utl_arr[n-1];
   }
@@ -153,12 +184,14 @@ export class DetailComponent implements OnInit, OnChanges {
     return ind !== -1;
   }
 
+  /**
+   * Photo section
+   */
   splitPhotos(photos) {
     this.photo_col = [[],[],[],[]];
    photos.forEach((photo, ind) => {
      this.photo_col[ind % 4].push(photo.getUrl({maxWidth: 1600}));
    });
-   console.log(this.photo_col);
   }
 
   /**
@@ -172,16 +205,32 @@ export class DetailComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    // console.log(changes);
-    // console.log(this.place);
     if(changes['display_status'] && changes['display_status']['currentValue']) this.display_status = changes['display_status']['currentValue'];
     if(changes['favorites']) this.favorites = changes['favorites']['currentValue'];
+    if(changes['detail'] && changes['detail']['currentValue']) {
+      this.detail = changes['detail']['currentValue'];
+      console.log(this.detail);
+      this.reviews = this.detail['reviews'];
+      this.google_reviews = this.reviews;
+      this.photos = this.detail['photos'] || [];
+      this.opening_hours = this.detail['opening_hours'] || [];
+      this.splitPhotos(this.photos);
+    }
     if(changes['place'] && changes['place']['currentValue']) {
       this.place = changes['place']['currentValue'];
       //Initialize map
       this.map = new google.maps.Map(this.elementRef.nativeElement.querySelector('#map'), {
         center: this.place['geometry']['location'],
         zoom: 17
+      });
+
+      this.street_view = new google.maps.StreetViewPanorama(this.elementRef.nativeElement.querySelector('#streetView'), {
+        position: this.place['geometry']['location'],
+        pov: {
+          heading: 165,
+          pitch: 0
+        },
+        zoom: 1
       });
 
       this.marker = new google.maps.Marker({
@@ -196,11 +245,13 @@ export class DetailComponent implements OnInit, OnChanges {
 
       this.map_service = new google.maps.places.PlacesService(this.map);
       this.map_service.getDetails(request, (detail, status) => {
-        this.detail = detail;
-        this.reviews = detail['reviews'];
-        this.photos = detail['photos'] || [];
-        this.opening_hours = detail['opening_hours'] || [];
-        this.splitPhotos(this.photos);
+        // this.detail = detail;
+        // this.reviews = detail['reviews'];
+        // this.google_reviews = this.reviews;
+        // this.photos = detail['photos'] || [];
+        // this.opening_hours = detail['opening_hours'] || [];
+        // this.splitPhotos(this.photos);
+        this.onDetailObrained.emit(detail);
       });
 
       this.directionsService = new google.maps.DirectionsService();

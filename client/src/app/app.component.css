@@ -9,3 +9,7 @@
 .pagination_btn {
   width: 100px;
 }
+
+.clickable {
+  cursor: pointer;
+}

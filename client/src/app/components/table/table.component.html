@@ -1,13 +1,13 @@
 
 <div class="alert alert-warning" role="alert" *ngIf="!display_content || display_content.length === 0" >
-  There is no records.
+  No records.
 </div>
 
 <div *ngIf="display_content && display_content.length > 0" class="container">
 
   <button type="button" class="btn btn-outline-secondary float-right mt-2 mb-2" [disabled]="!focused_place"
     (click)="requireDetail(null)"
-  >Details</button>
+  >Details <i class="fas fa-angle-right"></i></button>
 
   <table class="table table-hover">
     <thead>
@@ -27,12 +27,12 @@
         <td><img class="category_icon" src="{{ place.icon }}" class="category_icon"></td>
         <td>{{ place.name }}</td>
         <td>{{ place.vicinity }}</td>
-        <td><div class="icon_btn" (click)="addOrRemoveFavorite(place)">
+        <td><div class="icon_btn clickable" (click)="addOrRemoveFavorite(place)">
           <i *ngIf="!isResult"  class="fas fa-trash-alt"></i>
           <i *ngIf="isResult && !checkIfInFavorite(place)" class="far fa-star"></i>
           <i *ngIf="isResult && checkIfInFavorite(place)" class="fas fa-star" style="color: gold"></i>
         </div></td>
-        <td><div class="icon_btn" (click)="requireDetail(place)"><i class="fas fa-angle-right"></i></div></td>
+        <td><div class="icon_btn clickable" (click)="requireDetail(place)"><i class="fas fa-angle-right"></i></div></td>
       </tr>
     </tbody>
   </table>

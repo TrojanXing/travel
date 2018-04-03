@@ -10,6 +10,8 @@ const DETAIL_API = 'https://maps.googleapis.com/maps/api/place/details/json?';
 const PLACE_PHOTO = 'https://maps.googleapis.com/maps/api/place/photo?';
 const GOOGLE_KEY = 'AIzaSyBN20SIlF5X2epJryqAvSNXBLpifLKu5fM';
 const GEO_CODE_API = 'https://maps.googleapis.com/maps/api/geocode/json?';
+const YELP_API = 'https://api.yelp.com/v3/businesses';
+const YELP_TOKEN = 'L8oWSZcl-bizksbRENFy2tV8bxlv32Xpd7Z3Qv51cauwyaSO-oh6FdVpltMQcs8KhgDc2P_FycgevrvsWdKAqKT--0rNpllaQT0V_r7wC1ICEZMP580cv8juE9DCWnYx';
 
 const app = express();
 const port = 8888;
@@ -29,18 +31,17 @@ app.use(body_parser.json());
 // });
 
 /* search places */
-app.post('/search', function(req, res, next) {
-	let {keyword, category, start_loc, start_here, distance, pageToken} = req.body;
+app.get('/search', function(req, res, next) {
+	let {keyword, category, start_loc, start_here, distance} = req.query;
+	// console.log(req.query);
 	distance = MILE_TO_METER * distance;
-	keyword = keyword.replace(' ', '_');
 	category = category === 'default'? '': "&type=" + category;
-	pageToken = pageToken? "&pagetoken=" + pageToken : '';
 
-	let geoPromise = start_here? Promise.resolve(start_loc): getGeoCode(start_loc);
+	let geoPromise = start_here === 'true'? Promise.resolve(start_loc): getGeoCode(start_loc);
 
 	return geoPromise
 		.then(geocode => {
-			let url = MAP_API + "location=" + geocode + "&radius=" + distance + "&keyword=" + keyword + category + pageToken + "&key=" + GOOGLE_KEY
+			let url = MAP_API + "location=" + geocode + "&radius=" + distance + "&keyword=" + keyword + category + "&key=" + GOOGLE_KEY
 			// console.log(geocode);
 			// console.log(url);
       let option = {
@@ -52,7 +53,7 @@ app.post('/search', function(req, res, next) {
       };
 			return request(option);
 		}).then(search_result => {
-				console.log('Geo search result');
+				console.log('Get search result');
         res.status(200).send(search_result);
         return null;
 		}).catch(err => {
@@ -94,6 +95,44 @@ app.get('/detail', function(req, res, next) {
 		})
 });
 
+app.get('/yelp', function	(req, res, next) {
+	let {name, city, country, state, address} = req.query;
+	let url = YELP_API + '/matches/best?' + 'name=' + name.replace(/\s+/gi, '+')
+    + '&city=' + city.replace(/\s+/gi, '+')
+    + '&state=' + state
+    + '&country=' + country
+    + '&address1=' + address.replace(/\s+/gi, '+');
+	console.log(url);
+	let option = {
+		url: url,
+		headers: {
+      'User-Agent': 'Request-Promise',
+			'Authorization': `Bearer ${YELP_TOKEN}`
+		},
+		json: true
+	};
+	let result = {};
+	result.reviews = [];
+	return request(option)
+		.then(business => {
+			if(business.length !== 0) {
+				console.log(business);
+				return business[0].id;
+			} else {
+				Promise.reject('No business found');
+			}
+		}).then((id) => {
+			option.url = YELP_TOKEN + "/" + id + '/review';
+			return request(option)
+		}).then(reviews => {
+			res.status.send(reviews)
+		}).catch(err => {
+			console.log(err);
+			res.status(500).send(err);
+		})
+
+})
+
 /**
  * Set up port
  */
@@ -123,6 +162,5 @@ function getGeoCode(location) {
 				console.log("Cannot get geocode for given location");
 				return '';
 			}
-
 		})
 }

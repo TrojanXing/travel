@@ -49,8 +49,6 @@ export class AppComponent implements OnInit {
 
   @ViewChild(SearchComponent) search;
 
-  title = 'app';
-  // TODO: favorites pagination
   favoritePlaces = [];
   currentPage = 0;
   search_results = {};
@@ -60,6 +58,8 @@ export class AppComponent implements OnInit {
   hasNext: Boolean;
   detail_display_status = 'hide';
   table_display_status = 'hide';
+  search_err = false;
+  detail;
 
   /**
    * nearby search
@@ -67,12 +67,19 @@ export class AppComponent implements OnInit {
   nearby_search(form) {
     this.searching = true;
     this.request.searchPlaces(form).subscribe(data => {
-      this.searching = false;
-      this.search_results[this.currentPage] = data;
-      this.display_content = data['results'];
-      this.hasNext = !!data['next_page_token'];
-      this.showTable();
-      console.log('nearby search success');
+      if (data['status'] === 'OK') {
+        this.searching = false;
+        this.search_results[this.currentPage] = data;
+        this.display_content = data['results'];
+        this.hasNext = !!data['next_page_token'];
+        this.showTable();
+        this.search_err = false;
+        console.log('nearby search success');
+      } else {
+        this.search_err = true;
+        this.hideAll();
+      }
+
       console.log(data);
     });
   }
@@ -104,8 +111,17 @@ export class AppComponent implements OnInit {
     this.table_display_status = 'show';
   }
 
+  sendDetail(detail) {
+    this.detail = detail;
+  }
+
   showDetail() {
     this.detail_display_status = 'show';
+    this.table_display_status = 'hide';
+  }
+
+  hideAll() {
+    this.detail_display_status = 'hide';
     this.table_display_status = 'hide';
   }
 

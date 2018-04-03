@@ -18,10 +18,18 @@ export class RequestService {
 
   // TODO: change post to get
   searchPlaces(form_data) {
+    // keyword, category, start_loc, start_here, distance, pageToken
+    let url = this.server_url + '/search?'
+      + 'keyword=' + form_data.keyword.replace(/\s+/gi, '_')
+      + '&category=' + form_data.category
+      + '&start_loc=' + form_data.start_loc.replace(/\s+/gi, '+')
+      + '&start_here=' + form_data.start_here
+      + '&distance=' + form_data.distance;
+    console.log(url)
     this.httpOption = new HttpHeaders({
       'Content-Type': 'application/json',
     });
-    return this.http.post(this.server_url + '/search', form_data, this.httpOption);
+    return this.http.get(url, this.httpOption);
   }
 
   getNextPage(pageToken) {
