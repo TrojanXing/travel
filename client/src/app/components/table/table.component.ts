@@ -39,11 +39,11 @@ export class TableComponent implements OnChanges {
   }
 
   addOrRemoveFavorite(place) {
-    // console.log(place);
     this.onFavoriteChanged.emit(place);
   }
 
   requireDetail(place) {
+    console.log("Detail button clicked: " + (place? place.name: 'null'));
     this.onDetailRequired.emit(place);
   }
 

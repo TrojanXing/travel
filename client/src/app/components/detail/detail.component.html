@@ -9,8 +9,9 @@
       <i *ngIf="!checkIfInFavorite()" class="far fa-star"></i>
       <i *ngIf="checkIfInFavorite()" class="fas fa-star" style="color: gold"></i>
     </button>
-
   </div>
+
+  <!--Tab * 4-->
   <div class="tab_container mt-4">
     <ul class="nav nav-tabs row justify-content-end">
       <li class="nav-item">
@@ -35,13 +36,17 @@
         <tbody>
           <tr *ngIf="detail && detail['formatted_address']"><th scope="row">Address</th><td>{{ (detail)?.formatted_address }}</td></tr>
           <tr *ngIf="detail && detail['international_phone_number']"><th scope="row">Phone Number</th><td>{{ (detail)?.international_phone_number }}</td></tr>
-          <tr *ngIf="detail && detail['rating']"><th scope="row">Price Level</th><td>{{ calcPriceLevel((detail)?.price_level) }}</td></tr>
-          <tr *ngIf="detail && detail['price_level']"><th scope="row">Rating</th><td>{{ (detail)?.rating }}<i *ngFor="let n of createArr((detail)?.rating)" class="fas fa-star" style="color: gold"></i></td></tr>
+          <tr *ngIf="detail && detail['price_level']"><th scope="row">Price Level</th><td>{{ calcPriceLevel((detail)?.price_level) }}</td></tr>
+          <tr *ngIf="detail && detail['rating']">
+            <th scope="row">Rating</th>
+            <td>{{ (detail)?.rating }}
+              <div [ngStyle]="{'overflow': 'hidden', 'width.px': 18*(detail)?.rating, 'display': 'inline-block'}"><div style="overflow: hidden; width: 100px; height: 20px;"><i *ngFor="let n of createArr(5)" class="fas fa-star" style="color: gold"></i></div></div>
+            </td>
+          </tr>
           <tr *ngIf="detail && detail['url']"><th scope="row">Google Page</th><td><a href="{{ (detail)?.url }}" target="_blank">{{ (detail)?.url }}</a></td></tr>
           <tr *ngIf="detail && detail['website']"><th scope="row">Website</th><td><a href="{{ (detail)?.website }}" target="_blank">{{ (detail)?.website }}</a></td></tr>
           <tr *ngIf="detail && detail['opening_hours']"><th scope="row">Hours</th><td>{{ checkOpenStatus(detail?.opening_hours) }}
-            <button type="button" class="btn btn-link" data-toggle="modal" data-target="#open_hour"
-                    *ngIf="opening_hours && opening_hours.length > 0">
+            <button type="button" class="btn btn-link" data-toggle="modal" data-target="#open_hour">
               Open Hour
             </button>
           </td></tr>
@@ -66,17 +71,17 @@
     <!--map-container-->
     <div class="tab-pane fade mt-3 container" id="map_container">
       <form class="row" [formGroup]="form" (submit)="calcRoute($event)">
-        <div class="form-group col-3">
+        <div class="form-group col-md-3">
           <label for="start_loc_route">From</label>
           <input class="form-control" formControlName="start_loc_route" type="text" id="start_loc_route">
         </div>
 
-        <div class="form-group col-3">
+        <div class="form-group col-md-3">
           <label for="end_route">To</label>
           <input class="form-control" formControlName="end_route" type="text" id="end_route" disabled value="{{ detail?.formatted_address }}">
         </div>
 
-        <div class="form-group col-3">
+        <div class="form-group col-md-3">
           <label for="travel_mode">Travel Mode</label>
           <select id="travel_mode" class="form-control customer-select" formControlName="travel_mode" >
             <option *ngFor="let mode of travel_modes" [value]="mode">
@@ -85,9 +90,14 @@
           </select>
         </div>
 
-        <div class="form-group col-3">
-          <br>
-          <button class="btn btn-primary" type="submit" name="search" id="search" >Get Direction</button>
+        <div class="form-group col-md-3 align-bottom">
+          <!--<label for="search">&nbsp;</label>-->
+          <button class="btn btn-primary" type="submit" name="search" id="search"
+                  style="position: absolute; bottom: 0;"
+                  [ngClass]="{
+                    'is-invalid': form.controls.start_loc_route.errors && form.controls.start_loc_route.dirty,
+                    'is-valid': !form.controls.start_loc_route.errors}"
+                  [disabled]="!form.valid">Get Direction</button>
         </div>
 
       </form>
@@ -106,42 +116,64 @@
 
     <!--reviews-->
     <div class="tab-pane fade mt-3" id="reviews">
-      <div class="dropdown">
-        <!--TODO: change drop down text-->
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          {{ review_origin }}
-        </button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-          <a class="dropdown-item" href="#" (click)="changeReviewOrigin(true)">Google Review</a>
-          <a class="dropdown-item" href="#" (click)="changeReviewOrigin(false)">Yelp Review</a>
+        <div class="dropdown d-inline-block">
+          <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            {{ review_origin }}
+          </button>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+            <a class="dropdown-item" href="#" (click)="changeReviewOrigin(true)">Google Reviews</a>
+            <a class="dropdown-item" href="#" (click)="changeReviewOrigin(false)">Yelp Reviews</a>
+          </div>
         </div>
-        <!--TODO: change drop down text-->
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          {{ order_method }}
-        </button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
-          <a class="dropdown-item" href="#">Default	Order</a>
-          <a class="dropdown-item" href="#">Highest Rating</a>
-          <a class="dropdown-item" href="#">Lowest	Rating</a>
-          <a class="dropdown-item" href="#">Most Recent</a>
-          <a class="dropdown-item" href="#">Least	Recent</a>
-        </div>
-      </div>
 
-      <div class="alert alert-warning" role="alert" *ngIf="!reviews || reviews.length === 0" >
+        <div class="dropdown d-inline-block">
+          <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            {{ order_method }}
+          </button>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
+            <a class="dropdown-item" href="#" (click)="reviews_order(0)">Default	Order</a>
+            <a class="dropdown-item" href="#" (click)="reviews_order(1)">Highest Rating</a>
+            <a class="dropdown-item" href="#" (click)="reviews_order(2)">Lowest	Rating</a>
+            <a class="dropdown-item" href="#" (click)="reviews_order(3)">Most Recent</a>
+            <a class="dropdown-item" href="#" (click)="reviews_order(4)">Least	Recent</a>
+          </div>
+        </div>
+
+      <div class="alert alert-warning" role="alert"
+           *ngIf="(review_origin === 'Google Reviews' && (!google_reviews || google_reviews.length === 0)) ||
+           (review_origin === 'Yelp Reviews' && (!yelp_reviews || yelp_reviews.length === 0))" >
         No records.
       </div>
 
-      <div class="container">
-        <div class="card mt-2" *ngFor="let review of reviews">
+      <!--Google reviews-->
+      <div class="container" *ngIf="review_origin === 'Google Reviews' && google_reviews" >
+        <div class="card mt-2" *ngFor="let review of google_reviews">
           <div class="card-body row">
             <div class="col-md-2">
-              <img src="{{review['profile_photo_url']}}" style="max-width: 50px;">
+              <img src="{{ review['profile_photo_url']}}" style="max-width: 50px;">
             </div>
             <div class="col-md-10">
-              <div><a href="#">{{ review['author_name']}}</a></div>
-              <div><span><i *ngFor="let n of createArr(review['rating'])" class="fas fa-star" style="color: gold"></i></span><span> {{ formatDate(review['time']) }}</span> </div>
+              <div><a href="{{ review['author_url'] }}" target="_blank">{{ review['author_name']}}</a></div>
+              <div>
+                <span><i *ngFor="let n of createArr(review['rating'])" class="fas fa-star" style="color: gold"></i></span>
+                <span> {{ formatDate(review['time']) }}</span>
+              </div>
               <div>{{ review['text'] }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--Yelp reviews-->
+      <div class="container" *ngIf="review_origin === 'Yelp Reviews' && yelp_reviews">
+        <div class="card mt-2" *ngFor="let review of yelp_reviews">
+          <div class="card-body row">
+            <div class="col-md-2">
+              <img src="{{ review?.user['image_url'] }}" style="max-width: 50px;">
+            </div>
+            <div class="col-md-10">
+              <div><a href="{{ review?.url }}" target="_blank">{{ review?.user['name']}}</a></div>
+              <div><span><i *ngFor="let n of createArr(review?.rating)" class="fas fa-star" style="color: gold"></i></span><span> {{ review?.time_created }}</span> </div>
+              <div>{{ review?.text }}</div>
             </div>
           </div>
         </div>
@@ -163,8 +195,8 @@
         <div class="modal-body">
           <table class="table">
             <tbody>
-            <tr *ngFor="let text of opening_hours['weekday_text']"
-                [ngClass]="{'font-weight-bold': checkWeekday(text)}">
+            <tr *ngFor="let text of opening_hours['weekday_text']; let i = index "
+                [ngClass]="{'font-weight-bold': checkWeekday(i)}">
               <td>{{ text.split(":")[0] }}</td>
               <td>{{ formatOpenTime(text) }}</td>
             </tr>

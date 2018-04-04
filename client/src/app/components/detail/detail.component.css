@@ -5,3 +5,8 @@
 .hide_map_content {
   height: 0;
 }
+
+i {
+  width: 18px;
+  height: 16px;
+}

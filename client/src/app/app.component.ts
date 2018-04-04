@@ -79,8 +79,7 @@ export class AppComponent implements OnInit {
         this.search_err = true;
         this.hideAll();
       }
-
-      console.log(data);
+      //console.log(data);
     });
   }
 
@@ -103,6 +102,7 @@ export class AppComponent implements OnInit {
 
   requestDetail(place) {
     this.focusd_place = place? place: this.focusd_place;
+    console.log("Focused place changed: " + this.focusd_place.name);
     this.showDetail();
   }
 
@@ -112,6 +112,7 @@ export class AppComponent implements OnInit {
   }
 
   sendDetail(detail) {
+    console.log("Detail changed noticed: " + detail['name']);
     this.detail = detail;
   }
 

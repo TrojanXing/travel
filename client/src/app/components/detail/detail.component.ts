@@ -4,6 +4,7 @@ import {Form, FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {split} from "ts-node";
 import * as moment from 'moment';
 import {forEach} from "@angular/router/src/utils/collection";
+import { RequestService } from "../../service/request.service";
 
 @Component({
   selector: 'app-detail',
@@ -19,23 +20,24 @@ export class DetailComponent implements OnInit, OnChanges {
 
   @Output() onDetailHidden: EventEmitter<Object> =  new EventEmitter<Object>();
   @Output() onFavoriteChanged: EventEmitter<Object> = new EventEmitter<Object>();
-  @Output() onDetailObrained: EventEmitter<Object> = new EventEmitter<Object>();
+  @Output() onDetailObtained: EventEmitter<Object> = new EventEmitter<Object>();
 
   public map;
   public street_view;
   public map_service;
   public marker;
   public showMap = true;
-
+  public yelp_detail;
   public form;
   public travel_modes = ['DRIVING', 'BICYCLING', 'TRANSIT', 'WALKING'];
   public directionsService;
   public directionsDisplay;
   public reviews;
-  public google_reviews;
-  public yelp_reviews;
+  public google_reviews = [];
+  public yelp_reviews = [];
   public review_origin = 'Google Reviews';    //True for google, false for yelp
   public order_method = 'Default Order';
+  public order_methods = ['Default Order', 'Highest Rating', 'Lowest Rating', 'Most recent', 'Least Recent'];
   public photos;
   public photo_col = [[],[],[],[]];
   public utl_arr = [[1],[1,1],[1,1,1],[1,1,1,1],[1,1,1,1,1]];
@@ -44,7 +46,8 @@ export class DetailComponent implements OnInit, OnChanges {
 
   constructor(
     private elementRef: ElementRef,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private request: RequestService
   ) {
     this.createForm();
   }
@@ -54,10 +57,20 @@ export class DetailComponent implements OnInit, OnChanges {
    */
   createForm() {
     this.form = this.formBuilder.group({
-      start_loc_route: ['Your location'],
+      start_loc_route: ['Your location', Validators.compose([
+          Validators.required,
+          this.startLocValidator])],
       end_route: [],
       travel_mode: ['DRIVING'],
     });
+  }
+
+  startLocValidator(controls) {
+    if (controls.value && controls.value.trim().length != 0) {
+      return null;
+    } else {
+      return { 'keywordValidator': true };
+    }
   }
 
   calcRoute(e) {
@@ -72,10 +85,8 @@ export class DetailComponent implements OnInit, OnChanges {
     //console.log(request);
     this.marker.setMap(null);
 
-    //this.directionsDisplay.setMap(this.map);
     this.directionsService.route(request, (result, status) => {
       if(status === 'OK') {
-        // console.log(result);
         this.directionsDisplay.setDirections(result);
       } else {
         console.log('Something wrong, cannot get route')
@@ -105,12 +116,94 @@ export class DetailComponent implements OnInit, OnChanges {
    */
   changeReviewOrigin(origin) {
     if(origin) {
-      //Google reviews
-      this.reviews = this.google_reviews;
+      this.review_origin = 'Google Reviews';
     } else {
-
+      this.review_origin = 'Yelp Reviews';
     }
+  }
 
+  getYelpReviews() {
+    let data = {};
+    console.log(this.detail);
+    if(this.detail && this.detail['address_components']) {
+      data['name'] = this.detail['name'];
+      this.detail['address_components'].forEach(addr => {
+        if(addr['types'].includes('country')) {
+          data['country'] = addr['short_name'];
+        }
+        if(addr['types'].includes('administrative_area_level_1')) {
+          data['state'] = addr['short_name'];
+        }
+        if(addr['types'].includes('administrative_area_level_2')) {
+          data['city'] = addr['short_name'];
+        }
+      });
+      data['address'] = this.detail['formatted_address'];
+      this.request.getYelp(data).subscribe(reviews => {
+        this.yelp_detail = reviews;
+        this.yelp_reviews = reviews['reviews'].slice();
+        console.log(this.yelp_reviews);
+      })
+    }
+  }
+
+  reviews_order(mode) {
+    switch(mode) {
+      //Default Order
+      case 0:
+        this.google_reviews = this.detail.reviews.slice();
+        this.yelp_reviews = this.yelp_reviews.slice();
+        this.order_method = this.order_methods[0];
+        break;
+      //Highest Rating
+      case 1:
+        this.yelp_reviews.sort(function (a, b) {
+          return b.rating - a.rating;
+        });
+        this.google_reviews.sort(function (a, b) {
+          return b.rating - a.rating;
+        });
+        this.order_method = this.order_methods[1];
+        break;
+      //Lowest Rating
+      case 2:
+        this.yelp_reviews.sort(function (a, b) {
+          return a.rating - b.rating;
+        });
+        this.google_reviews.sort(function (a, b) {
+          return a.rating - b.rating;
+        });
+        this.order_method = this.order_methods[2];
+        break;
+      //Most Recent
+      case 3:
+        this.yelp_reviews.sort(function (a, b) {
+          let date1 = new Date(a.time_created);
+          let date2 = new Date(b.time_created);
+          return date2.getTime() - date1.getTime();
+        });
+        this.google_reviews.sort(function (a, b) {
+          return b.time - a.time;
+        });
+        this.order_method = this.order_methods[3];
+        break;
+      //Least Recent
+      case 4:
+        this.yelp_reviews.sort(function (a, b) {
+          let date1 = new Date(a.time_created);
+          let date2 = new Date(b.time_created);
+          return date1.getTime() - date2.getTime();
+        });
+        this.google_reviews.sort(function (a, b) {
+          return a.time - b.time;
+        });
+        this.order_method = this.order_methods[4];
+        break;
+      default:
+        this.google_reviews = this.detail.reviews.slice();
+        this.yelp_reviews = this.yelp_reviews.slice();
+        this.order_method = this.order_methods[0];
+    }
   }
 
   /**
@@ -130,9 +223,10 @@ export class DetailComponent implements OnInit, OnChanges {
     return moment(time * 1000).format('YYYY-MM-DD HH:mm:ss');
   }
 
-  checkWeekday(str) {
-    let today = new Date();
-    return str.split(':')[0] === this.weekday[today.getUTCDay()-1];
+  checkWeekday(i) {
+    let now = moment().utc().local();
+    return i == now.weekday()-1;
+  // return str.split(':')[0] === this.weekday[today.getUTCDay()-1];
   }
 
   checkOpenStatus(opening_hours) {
@@ -165,7 +259,7 @@ export class DetailComponent implements OnInit, OnChanges {
   }
 
   createArr(n) {
-    return this.utl_arr[n-1];
+    return this.utl_arr[Math.floor(n-1)];
   }
 
   hideDetail() {
@@ -209,14 +303,16 @@ export class DetailComponent implements OnInit, OnChanges {
     if(changes['favorites']) this.favorites = changes['favorites']['currentValue'];
     if(changes['detail'] && changes['detail']['currentValue']) {
       this.detail = changes['detail']['currentValue'];
-      console.log(this.detail);
+      console.log("Detail display changed: " + this.detail['name']);
       this.reviews = this.detail['reviews'];
-      this.google_reviews = this.reviews;
+      this.google_reviews = this.detail['reviews'].slice();
       this.photos = this.detail['photos'] || [];
       this.opening_hours = this.detail['opening_hours'] || [];
       this.splitPhotos(this.photos);
+      this.getYelpReviews();
     }
     if(changes['place'] && changes['place']['currentValue']) {
+      console.log("Focused place changed: " + this.place['name']);
       this.place = changes['place']['currentValue'];
       //Initialize map
       this.map = new google.maps.Map(this.elementRef.nativeElement.querySelector('#map'), {
@@ -245,13 +341,8 @@ export class DetailComponent implements OnInit, OnChanges {
 
       this.map_service = new google.maps.places.PlacesService(this.map);
       this.map_service.getDetails(request, (detail, status) => {
-        // this.detail = detail;
-        // this.reviews = detail['reviews'];
-        // this.google_reviews = this.reviews;
-        // this.photos = detail['photos'] || [];
-        // this.opening_hours = detail['opening_hours'] || [];
-        // this.splitPhotos(this.photos);
-        this.onDetailObrained.emit(detail);
+        console.log('Detail obtained: ' + detail.name);
+        this.onDetailObtained.emit(detail);
       });
 
       this.directionsService = new google.maps.DirectionsService();

@@ -40,11 +40,17 @@ export class RequestService {
     return this.http.get(url, this.httpOption);
   }
 
-  getDetail(place_id) {
+  getYelp(data) {
+    let url = this.server_url + '/yelp?'
+      + 'name=' + data.name.replace(/\s+/gi, '+')
+      + '&city=' + data.city.replace(/\s+/gi, '+')
+      + '&country=' + data.country
+      + '&state=' + data.state
+      + '&address=' + data.address.replace(/\s+/gi, '+');
+    console.log(url);
     this.httpOption = new HttpHeaders({
       'Content-Type': 'application/json',
     });
-    let url = this.server_url + '/detail?id=' + place_id;
     return this.http.get(url, this.httpOption);
   }
 

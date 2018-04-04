@@ -11,8 +11,8 @@ import { } from 'googlemaps';
 })
 export class SearchComponent implements OnInit {
 
-  @Output() onResultObtained: EventEmitter<Object> =  new EventEmitter<Object>();
   @Output() onFormSubmitted: EventEmitter<Object> =  new EventEmitter<Object>();
+  @Output() onFormCleared: EventEmitter<Object> =  new EventEmitter<Object>();
 
   form;
   lat;
@@ -98,6 +98,10 @@ export class SearchComponent implements OnInit {
       category: this.form.get('category').value,
     };
     this.onFormSubmitted.emit(search_form);
+  }
+
+  clearForm() {
+    this.onFormCleared.emit();
   }
 
   ngOnInit() {

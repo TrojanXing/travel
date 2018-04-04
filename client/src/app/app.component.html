@@ -1,4 +1,7 @@
-<app-search (onFormSubmitted)="nearby_search($event)"></app-search>
+<app-search
+  (onFormSubmitted)="nearby_search($event)"
+  (onFormCleared)="hideAll()"
+></app-search>
 
 <div class="container col-md-10 col-sm-12 mt-4">
 
@@ -53,12 +56,9 @@
       [detail]="detail"
       (onDetailHidden)="showTable()"
       (onFavoriteChanged)="addOrRemoveFavorite($event)"
-      (onDetailObrained)="sendDetail($event)"
+      (onDetailObtained)="sendDetail($event)"
     ></app-detail>
   </div>
 
   <div id="map_test"></div>
 </div>
-
-
-

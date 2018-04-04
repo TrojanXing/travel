@@ -19,16 +19,16 @@ const port = 8888;
 /**
  * Set up routes
  */
-app.use(express.static(__dirname + '/public'));
+app.use(express.static('./client/dist'));
 app.use(cors({
   origin: 'http://localhost:4200' //dev server
 }));
 app.use(body_parser.urlencoded({ extended: false }));
 app.use(body_parser.json());
 
-// app.get('/', function(req, res) {
-//   res.sendFile(path.join(__dirname + '/public/index.html'));
-// });
+app.get('/', function(req, res) {
+  res.sendFile(path.join('./client' + '/dist/index.html'));
+});
 
 /* search places */
 app.get('/search', function(req, res, next) {
@@ -43,7 +43,7 @@ app.get('/search', function(req, res, next) {
 		.then(geocode => {
 			let url = MAP_API + "location=" + geocode + "&radius=" + distance + "&keyword=" + keyword + category + "&key=" + GOOGLE_KEY
 			// console.log(geocode);
-			// console.log(url);
+			console.log(url);
       let option = {
         url: url,
         headers: {
@@ -53,11 +53,12 @@ app.get('/search', function(req, res, next) {
       };
 			return request(option);
 		}).then(search_result => {
-				console.log('Get search result');
-        res.status(200).send(search_result);
-        return null;
+      console.log(search_result);
+      console.log('Get search result');
+      res.status(200).send(search_result);
+      return null;
 		}).catch(err => {
-			console.log(err);
+			//console.log(err);
 		});
 });
 
@@ -114,21 +115,28 @@ app.get('/yelp', function	(req, res, next) {
 	let result = {};
 	result.reviews = [];
 	return request(option)
-		.then(business => {
+		.then(result => {
+			let business = result.businesses;
 			if(business.length !== 0) {
 				console.log(business);
 				return business[0].id;
 			} else {
-				Promise.reject('No business found');
+				throw('No business found');
 			}
 		}).then((id) => {
-			option.url = YELP_TOKEN + "/" + id + '/review';
+			option.url = YELP_API + "/" + id + '/reviews';
+			console.log(option.url);
 			return request(option)
 		}).then(reviews => {
-			res.status.send(reviews)
+		  console.log(reviews);
+			if(reviews) {
+        res.status(200).send(reviews);
+			} else {
+				res.status(200).send([]);
+			}
 		}).catch(err => {
 			console.log(err);
-			res.status(500).send(err);
+			res.status(200).send([]);
 		})
 
 })
@@ -153,7 +161,6 @@ function getGeoCode(location) {
 
 	return request(option)
 		.then(geo_info => {
-
 			if(geo_info.status === 'OK') {
         console.log("Get geocode for location success");
 				let geometry = geo_info.results[0].geometry.location;

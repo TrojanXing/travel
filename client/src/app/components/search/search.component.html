@@ -1,5 +1,4 @@
 <div class="container  col-md-8 col-sm-12">
-<!--TODO: VALIDATE FORM REQUIRED-->
   <form class="col-md-8 col-sm-12" [formGroup]="form" (submit)="onSearchSubmit($event)" id="searchForm">
     <legend style="text-align: center"><b>Travel and Entertainment Search</b></legend>
     <div class="form-group row">
@@ -41,7 +40,6 @@
           <input class="form-check-input" (click)="onRadioChange(false)" id="radio2" name="start_radio" type="radio" value="input">
           <label class="form-check-label" for="radio2">Other, please specify:</label>
         </div>
-        <!--TODO: auto complete value not update-->
         <input class="form-control" formControlName="start_loc" type="text" placeholder="Enter a location" id="start_loc" disabled
                [ngClass]="{
             'is-invalid': form.controls.start_loc.errors && form.controls.start_loc.dirty,
@@ -49,9 +47,9 @@
         <div class="error_msg" style="" *ngIf="form.controls.start_loc.errors && form.controls.start_loc.dirty">Please enter a location.</div>
       </div>
     </div>
-    <div>
+    <div class="text-md-left text-sm-center">
       <button class="btn btn-primary mr-2" type="submit" name="search" id="search" [disabled]="!start_loc || !form.valid"><i class="fas fa-search"></i>Search</button>
-      <button class="btn btn-outline-secondary" type="reset" name="reset" value="Clear">Clear</button>
+      <button class="btn btn-outline-secondary" type="reset" name="reset" value="Clear" (click)="clearForm()">Clear</button>
     </div>
   </form>
 </div>
