@@ -19,7 +19,7 @@ const port = 8888;
 /**
  * Set up routes
  */
-app.use(express.static('./client/dist'));
+app.use(express.static('./client/public'));
 app.use(cors({
   origin: 'http://localhost:4200' //dev server
 }));
@@ -27,7 +27,7 @@ app.use(body_parser.urlencoded({ extended: false }));
 app.use(body_parser.json());
 
 app.get('/', function(req, res) {
-  res.sendFile(path.join('./client' + '/dist/index.html'));
+  res.sendFile(path.join('./client' + '/public/index.html'));
 });
 
 /* search places */
