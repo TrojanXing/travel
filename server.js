@@ -2,6 +2,7 @@ const express = require('express');
 const request = require('request-promise');
 const cors = require('cors');
 const body_parser = require('body-parser');
+const path = require('path');
 // const path = require('path');
 
 const MILE_TO_METER = 1609.34;
@@ -21,7 +22,7 @@ const port = 8888;
  */
 app.use(express.static('./client/public'));
 app.use(cors({
-  origin: 'http://localhost:4200' //dev server
+  origin: '*' //dev server
 }));
 app.use(body_parser.urlencoded({ extended: false }));
 app.use(body_parser.json());
