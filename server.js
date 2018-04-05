@@ -53,7 +53,7 @@ app.get('/search', function(req, res, next) {
       };
 			return request(option);
 		}).then(search_result => {
-      console.log(search_result);
+      // console.log(search_result);
       console.log('Get search result');
       res.status(200).send(search_result);
       return null;
@@ -128,17 +128,16 @@ app.get('/yelp', function	(req, res, next) {
 			console.log(option.url);
 			return request(option)
 		}).then(reviews => {
-		  console.log(reviews);
+		  // console.log(reviews);
 			if(reviews) {
         res.status(200).send(reviews);
 			} else {
 				res.status(200).send([]);
 			}
 		}).catch(err => {
-			console.log(err);
+			// console.log(err);
 			res.status(200).send([]);
 		})
-
 })
 
 /**
