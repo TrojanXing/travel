@@ -40,6 +40,14 @@ export class RequestService {
     return this.http.get(url, this.httpOption);
   }
 
+  getDetail(place_id) {
+    this.httpOption = new HttpHeaders({
+      'Content-Type': 'application/json',
+    });
+    let url = this.server_url + '/detail?id=' + place_id;
+    return this.http.get(url, this.httpOption);
+  }
+
   getYelp(data) {
     let url = this.server_url + '/yelp?'
       + 'name=' + data.name.replace(/\s+/gi, '+')

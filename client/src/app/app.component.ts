@@ -111,11 +111,6 @@ export class AppComponent implements OnInit {
     this.table_display_status = 'show';
   }
 
-  sendDetail(detail) {
-    console.log("Detail changed noticed: " + detail['name']);
-    this.detail = detail;
-  }
-
   showDetail() {
     this.detail_display_status = 'show';
     this.table_display_status = 'hide';

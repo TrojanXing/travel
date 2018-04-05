@@ -53,10 +53,8 @@
       [place]="focusd_place"
       [display_status]="detail_display_status"
       [favorites]="favoritePlaces"
-      [detail]="detail"
       (onDetailHidden)="showTable()"
       (onFavoriteChanged)="addOrRemoveFavorite($event)"
-      (onDetailObtained)="sendDetail($event)"
     ></app-detail>
   </div>
 

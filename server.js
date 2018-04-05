@@ -79,20 +79,82 @@ app.get('/page', function(req, res, next) {
 		});
 });
 
+function constructYelpQuery(result) {
+	let yelp_query = {};
+
+  yelp_query['name'] = result['name'];
+  result['address_components'].forEach(addr => {
+    if(addr['types'].includes('country')) {
+      yelp_query['country'] = addr['short_name'];
+    }
+    if(addr['types'].includes('administrative_area_level_1')) {
+      yelp_query['state'] = addr['short_name'];
+    }
+    if(addr['types'].includes('administrative_area_level_2')) {
+      yelp_query['city'] = addr['short_name'];
+    }
+  });
+  yelp_query['address'] = result['formatted_address'];
+
+  // let url = this.server_url + '/yelp?'
+  //   + 'name=' + data.name.replace(/\s+/gi, '+')
+  //   + '&city=' + data.city.replace(/\s+/gi, '+')
+  //   + '&country=' + data.country
+  //   + '&state=' + data.state
+  //   + '&address=' + data.address.replace(/\s+/gi, '+');
+
+  let url = YELP_API + '/matches/best?' + 'name=' + yelp_query['name'].replace(/\s+/gi, '+')
+    + '&city=' + yelp_query['city'].replace(/\s+/gi, '+')
+    + '&state=' + yelp_query['state']
+    + '&country=' + yelp_query['country']
+    + '&address1=' + yelp_query['address'].replace(/\s+/gi, '+');
+
+  return url;
+}
+
 /* get place detail */
 app.get('/detail', function(req, res, next) {
 	let place_id = req.query.id;
+	let detail = {};
 	let url = DETAIL_API + "placeid=" + place_id + "&key=" + GOOGLE_KEY;
 	let option = {
 		url: url,
     headers: {
-      'User-Agent': 'Request-Promise'
+      'User-Agent': 'Request-Promise',
+      'Authorization': `Bearer ${YELP_TOKEN}`
     },
     json: true
 	};
 	return request(option)
 		.then(data => {
-			res.status(200).send(data);
+			if(data.status === 'OK') {
+        option.url = constructYelpQuery(data.result);
+        return request(option)
+          .then(result => {
+            let business = result.businesses;
+            if(business.length !== 0) {
+              console.log(business);
+              return business[0].id;
+            } else {
+              res.status(200).send(data);
+              return null;
+            }
+          }).then((id) => {
+            option.url = YELP_API + "/" + id + '/reviews';
+            console.log(option.url);
+            return request(option)
+          }).then(reviews => {
+						data.result.yelp_reviews = reviews.reviews;
+						res.status(200).send(data);
+          }).catch(err => {
+          	console.log(err);
+            res.status(200).send(data);
+          })
+			} else {
+				res.status(200).send(data);
+			}
+		}).catch(err => {
+			console.log(err);
 		})
 });
 

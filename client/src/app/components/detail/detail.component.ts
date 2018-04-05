@@ -20,7 +20,9 @@ export class DetailComponent implements OnInit, OnChanges {
 
   @Output() onDetailHidden: EventEmitter<Object> =  new EventEmitter<Object>();
   @Output() onFavoriteChanged: EventEmitter<Object> = new EventEmitter<Object>();
-  @Output() onDetailObtained: EventEmitter<Object> = new EventEmitter<Object>();
+
+  public PLACE_PHOTO = 'https://maps.googleapis.com/maps/api/place/photo?';
+  public GOOGLE_KEY = 'AIzaSyBN20SIlF5X2epJryqAvSNXBLpifLKu5fM';
 
   public map;
   public street_view;
@@ -119,31 +121,6 @@ export class DetailComponent implements OnInit, OnChanges {
       this.review_origin = 'Google Reviews';
     } else {
       this.review_origin = 'Yelp Reviews';
-    }
-  }
-
-  getYelpReviews() {
-    let data = {};
-    console.log(this.detail);
-    if(this.detail && this.detail['address_components']) {
-      data['name'] = this.detail['name'];
-      this.detail['address_components'].forEach(addr => {
-        if(addr['types'].includes('country')) {
-          data['country'] = addr['short_name'];
-        }
-        if(addr['types'].includes('administrative_area_level_1')) {
-          data['state'] = addr['short_name'];
-        }
-        if(addr['types'].includes('administrative_area_level_2')) {
-          data['city'] = addr['short_name'];
-        }
-      });
-      data['address'] = this.detail['formatted_address'];
-      this.request.getYelp(data).subscribe(reviews => {
-        this.yelp_detail = reviews;
-        this.yelp_reviews = reviews['reviews'].slice();
-        console.log(this.yelp_reviews);
-      })
     }
   }
 
@@ -284,7 +261,7 @@ export class DetailComponent implements OnInit, OnChanges {
   splitPhotos(photos) {
     this.photo_col = [[],[],[],[]];
    photos.forEach((photo, ind) => {
-     this.photo_col[ind % 4].push(photo.getUrl({maxWidth: 1600}));
+     this.photo_col[ind % 4].push(this.PLACE_PHOTO + "maxwidth=1600&photoreference=" + photo.photo_reference + "&key=" + this.GOOGLE_KEY);
    });
   }
 
@@ -301,16 +278,7 @@ export class DetailComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     if(changes['display_status'] && changes['display_status']['currentValue']) this.display_status = changes['display_status']['currentValue'];
     if(changes['favorites']) this.favorites = changes['favorites']['currentValue'];
-    if(changes['detail'] && changes['detail']['currentValue']) {
-      this.detail = changes['detail']['currentValue'];
-      console.log("Detail display changed: " + this.detail['name']);
-      this.reviews = this.detail['reviews'];
-      this.google_reviews = this.detail['reviews'].slice();
-      this.photos = this.detail['photos'] || [];
-      this.opening_hours = this.detail['opening_hours'] || [];
-      this.splitPhotos(this.photos);
-      this.getYelpReviews();
-    }
+
     if(changes['place'] && changes['place']['currentValue']) {
       console.log("Focused place changed: " + this.place['name']);
       this.place = changes['place']['currentValue'];
@@ -335,14 +303,22 @@ export class DetailComponent implements OnInit, OnChanges {
       });
 
       //Get Detail
-      let request = {
-        placeId: this.place['place_id']
-      };
 
       this.map_service = new google.maps.places.PlacesService(this.map);
-      this.map_service.getDetails(request, (detail, status) => {
-        console.log('Detail obtained: ' + detail.name);
-        this.onDetailObtained.emit(detail);
+      this.request.getDetail(this.place['place_id']).subscribe(result => {
+        let detail = result['result'];
+        console.log('Detail obtained: ' + detail['name']);
+        console.log(detail);
+        this.detail = detail;
+        console.log("Detail display changed: " + this.detail['name']);
+        this.reviews = this.detail['reviews'];
+        this.google_reviews = this.detail['reviews'].slice();
+        this.photos = this.detail['photos'] || [];
+        this.opening_hours = this.detail['opening_hours'] || [];
+        this.yelp_detail = this.detail['yelp_review'];
+        this.yelp_reviews = (this.detail['yelp_reviews'] || []).slice();
+        this.splitPhotos(this.photos);
+        console.log(this.detail);
       });
 
       this.directionsService = new google.maps.DirectionsService();
